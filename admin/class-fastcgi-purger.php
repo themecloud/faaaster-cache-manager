@@ -170,7 +170,7 @@ class FastCGI_Purger extends Purger {
         $_url_purge      = "http://localhost/purge-all";
         $this->do_remote_get( $_url_purge );
 
-		$_url_purge_pagespeed = "http://localhost/pagespeed_admin/cache?purge=*";
+		    $_url_purge_pagespeed = "http://localhost/pagespeed_admin/cache?purge=*";
         $this->do_remote_get(  $_url_purge_pagespeed );
 
 
