@@ -188,7 +188,7 @@ abstract class Purger {
 
 		$this->log( 'Function purge_post BEGIN ===' );
 
-		if ( 1 === (int) $nginx_helper_admin->options['purge_homepage_on_edit'] ) {
+		if ( 1 === (int) $nginx_helper_admin->options['purge_homepage_on_edit'] && NGINX_HOME_PURGE ) {
 			$this->_purge_homepage();
 		}
 
@@ -641,7 +641,7 @@ abstract class Purger {
 			$this->log( '# # # # #' );
 			$this->log( 'Function purge_on_post_moved_to_trash ( post id ' . $post->ID . ' ) BEGIN ===' );
 
-			if ( 1 === (int) $nginx_helper_admin->options['purge_homepage_on_del'] ) {
+			if ( 1 === (int) $nginx_helper_admin->options['purge_homepage_on_del'] && NGINX_HOME_PURGE ) {
 				$this->_purge_homepage();
 			}
 
