@@ -3,7 +3,7 @@
  * Plugin Name:       Server Cache
  * Plugin URI:        https://rtcamp.com/nginx-helper/
  * Description:       Manage server FastCGI cache. Automatic cache clearing when a post is updated. Warning:disabling this plugin won't disable server cache.
- * Version:           2.2.2
+ * Version:           2.2.3
  * Author:            rtCamp
  * Author URI:        https://rtcamp.com
  * Text Domain:       nginx-helper
