@@ -170,8 +170,8 @@ class Nginx_Helper_Admin
 
 			add_submenu_page(
 				'options-general.php',
-				__('Nginx Helper', 'nginx-helper'),
-				__('Nginx Helper', 'nginx-helper'),
+				__('Server cache', 'nginx-helper'),
+				__('Server cache', 'nginx-helper'),
 				'manage_options',
 				'nginx',
 				array(&$this, 'nginx_helper_setting_page')
