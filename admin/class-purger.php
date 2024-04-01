@@ -208,7 +208,7 @@ abstract class Purger
 
 		$this->log('Function purge_post BEGIN ===');
 
-		if (1 === (int) $nginx_helper_admin->options['purge_homepage_on_edit'] && NGINX_HOME_PURGE) {
+		if (1 === (int) $nginx_helper_admin->options['purge_homepage_on_edit'] || NGINX_HOME_PURGE) {
 			$this->_purge_homepage();
 		}
 
@@ -293,7 +293,7 @@ abstract class Purger
 			$this->purge_url($url);
 		}
 
-		if ($_purge_archive && NGINX_ARCHIVE_PURGE) {
+		if ($_purge_archive || NGINX_ARCHIVE_PURGE) {
 
 			$_post_type_archive_link = get_post_type_archive_link($_post_type);
 
@@ -363,7 +363,7 @@ abstract class Purger
 			}
 		}
 
-		if ($_purge_custom_taxa && NGINX_ARCHIVE_PURGE) {
+		if ($_purge_custom_taxa || NGINX_ARCHIVE_PURGE) {
 
 			$custom_taxonomies = get_taxonomies(
 				array(
@@ -660,7 +660,7 @@ abstract class Purger
 			$this->log('# # # # #');
 			$this->log('Function purge_on_post_moved_to_trash ( post id ' . $post->ID . ' ) BEGIN ===');
 
-			if (1 === (int) $nginx_helper_admin->options['purge_homepage_on_del'] && NGINX_HOME_PURGE) {
+			if (1 === (int) $nginx_helper_admin->options['purge_homepage_on_del'] || NGINX_HOME_PURGE) {
 				$this->_purge_homepage();
 			}
 
