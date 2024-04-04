@@ -62,7 +62,7 @@ form#purgeall .button-primary:focus {
 .rt-purge_url { width: 100%; }
 
 
-.rt-nginx-wrapper .postbox{
+.rt-nginx-wrapper #post_form > .postbox:first-child, .rt-nginx-wrapper #post_form > .postbox:nth-child(2), .enable_purge:has(.cache_method_fastcgi){
 	display:none;
 }
 
