@@ -208,7 +208,7 @@ abstract class Purger
 
 		$this->log('Function purge_post BEGIN ===');
 
-		if (1 === (int) $nginx_helper_admin->options['purge_homepage_on_edit'] && NGINX_HOME_PURGE) {
+		if (1 === (int) $nginx_helper_admin->options['purge_homepage_on_edit'] || NGINX_HOME_PURGE) {
 			$this->_purge_homepage();
 		}
 
@@ -273,8 +273,8 @@ abstract class Purger
 
 				$url = get_sample_permalink($post_id);
 
-				if ( ! empty( $url[0] ) && ! empty( $url[1] ) ) {
-					$url = str_replace( array('%postname%', '%pagename%'), $url[1], $url[0] );
+				if (!empty($url[0]) && !empty($url[1])) {
+					$url = str_replace(array('%postname%', '%pagename%'), $url[1], $url[0]);
 				} else {
 					$url = '';
 				}
@@ -293,7 +293,7 @@ abstract class Purger
 			$this->purge_url($url);
 		}
 
-		if ($_purge_archive && NGINX_ARCHIVE_PURGE) {
+		if ($_purge_archive || NGINX_ARCHIVE_PURGE) {
 
 			$_post_type_archive_link = get_post_type_archive_link($_post_type);
 
@@ -303,9 +303,9 @@ abstract class Purger
 				$this->purge_url($_post_type_archive_link);
 			}
 
-			$post_types = get_post_types( array( 'public' => true ) );
+			$post_types = get_post_types(array('public' => true));
 
-			if ( in_array( $_post_type, $post_types, true ) ) {
+			if (in_array($_post_type, $post_types, true)) {
 
 				$this->log('Purging date');
 
@@ -363,7 +363,7 @@ abstract class Purger
 			}
 		}
 
-		if ($_purge_custom_taxa && NGINX_ARCHIVE_PURGE) {
+		if ($_purge_custom_taxa || NGINX_ARCHIVE_PURGE) {
 
 			$custom_taxonomies = get_taxonomies(
 				array(
@@ -425,8 +425,8 @@ abstract class Purger
 		}
 
 		// Build a hash of the URL.
-		$url_path = isset( $url_data['path'] ) ? $url_data['path'] : '';
-		$hash = md5( $url_data['scheme'] . 'GET' . $url_data['host'] . $url_path );
+		$url_path = isset($url_data['path']) ? $url_data['path'] : '';
+		$hash = md5($url_data['scheme'] . 'GET' . $url_data['host'] . $url_path);
 
 		// Ensure trailing slash.
 		$cache_path = RT_WP_NGINX_HELPER_CACHE_PATH;
@@ -444,7 +444,7 @@ abstract class Purger
 		 * @param string $cached_file Cached file name.
 		 * @param string $url         URL to be purged.
 		 */
-		$cached_file = apply_filters( 'rt_nginx_helper_purge_cached_file', $cached_file, $url );
+		$cached_file = apply_filters('rt_nginx_helper_purge_cached_file', $cached_file, $url);
 
 		// Verify cached file exists.
 		if (!file_exists($cached_file)) {
@@ -502,10 +502,9 @@ abstract class Purger
 		//url of php to be called
 
 
-		$headers = $args['headers'];
 		$headers = array(
 			"X-Purge-Cache:true",
-			"Host:".wp_parse_url(home_url())['host'],
+			"Host:" . wp_parse_url(home_url())['host'],
 		);
 
 		$ch = curl_init();
@@ -529,13 +528,13 @@ abstract class Purger
 		//error_log("response=".json_encode($response));
 
 		/**
-			 * Fire an action after remote purge request.
-			 *
-			 * @since 2.1.0
-			 *
-			 * @param string $url      URL to be purged.
-			 * @param array  $response Array of results including HTTP headers.
-			 */
+		 * Fire an action after remote purge request.
+		 *
+		 * @since 2.1.0
+		 *
+		 * @param string $url      URL to be purged.
+		 * @param array  $response Array of results including HTTP headers.
+		 */
 		do_action('rt_nginx_helper_after_remote_purge_url', $url, []);
 	}
 
@@ -661,7 +660,7 @@ abstract class Purger
 			$this->log('# # # # #');
 			$this->log('Function purge_on_post_moved_to_trash ( post id ' . $post->ID . ' ) BEGIN ===');
 
-			if (1 === (int) $nginx_helper_admin->options['purge_homepage_on_del'] && NGINX_HOME_PURGE) {
+			if (1 === (int) $nginx_helper_admin->options['purge_homepage_on_del'] || NGINX_HOME_PURGE) {
 				$this->_purge_homepage();
 			}
 
