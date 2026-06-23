@@ -73,7 +73,14 @@ class Nginx_Helper_Admin {
 	 * @param      string $plugin_name       The name of this plugin.
 	 * @param      string $version    The version of this plugin.
 	 */
-	public function __construct( $plugin_name, $version ) {
+	public function __construct( $plugin_name = 'nginx-helper', $version = '2.2.3' ) {
+
+		if ( ! is_string( $plugin_name ) ) {
+			$plugin_name = 'nginx-helper';
+		}
+		if ( ! is_string( $version ) ) {
+			$version = '2.2.3';
+		}
 
 		$this->plugin_name = $plugin_name;
 		$this->version     = $version;

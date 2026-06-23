@@ -41,8 +41,13 @@ class FastCGI_Purger extends Purger {
 
 		$parse = wp_parse_url( $url );
 
-		if ( ! isset( $parse['path'] ) ) {
-			$parse['path'] = '';
+		// Pas de composant path (ex. home_url() sans slash final, ou un permalink de
+		// variation/produit qui se résout à scheme://host) → défaut '/', PAS ''.
+		// Avec '', la branche get_request construit un `…/purge` NU (sans slash final)
+		// qui ne matche AUCUNE location purge nginx → tombe dans @wordpress → un render
+		// 404 WordPress complet (php-fpm) par purge. '/' donne `…/purge/` → vraie purge.
+		if ( empty( $parse['path'] ) ) {
+			$parse['path'] = '/';
 		}
 
 		switch ( $nginx_helper_admin->options['purge_method'] ) {
