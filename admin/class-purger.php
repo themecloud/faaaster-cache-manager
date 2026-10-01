@@ -144,6 +144,26 @@ abstract class Purger
 		set_transient($post_id . '_rt_wp', "elementor", 10);
 	}
 
+	/**
+	 * Elementor vient de supprimer TOUS ses CSS générés (uploads/elementor/css) : mise à
+	 * jour de n'importe quelle extension/thème/core, enregistrement du kit, Outils →
+	 * Régénérer… Il ne les recrée qu'au prochain rendu PHP de chaque page : sans purge, les
+	 * pages en cache pointent vers des fichiers absents (site sans styles jusqu'à expiration).
+	 * purge_all() non forcée (FastCGI) purge une fois, en fin de requête : après le DERNIER
+	 * vidage d'une mise à jour automatique, hors mode maintenance.
+	 */
+	public function purge_on_elementor_files_cleared()
+	{
+		global $nginx_helper_admin;
+
+		if (empty($nginx_helper_admin->options['enable_purge'])) {
+			return;
+		}
+
+		$this->log('elementor files cleared');
+		$this->purge_all();
+	}
+
 	public function purge_wp_after_insert_post(int $post_id, $post, bool $update, $post_before)
 	{
 		// Don't update with elementor

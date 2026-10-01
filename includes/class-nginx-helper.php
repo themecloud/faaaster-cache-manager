@@ -235,6 +235,7 @@ class Nginx_Helper {
 
 		$this->loader->add_action( 'elementor/document/after_save', $nginx_purger, 'purge_elementor' );
 		$this->loader->add_action( 'elementor/document/before_save', $nginx_purger, 'init_elementor', 10, 2 );
+		$this->loader->add_action( 'elementor/core/files/clear_cache', $nginx_purger, 'purge_on_elementor_files_cleared' );
 
 		// expose action to allow other plugins to purge the cache.
 		$this->loader->add_action( 'rt_nginx_helper_purge_all', $nginx_purger, 'purge_all' );
