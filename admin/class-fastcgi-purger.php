@@ -184,36 +184,60 @@ class FastCGI_Purger extends Purger {
 	}
 
 	/**
-	 * Purge everything.
+	 * Purge le cache de PAGES (FastCGI) globalement.
+	 *
+	 * NE touche NI l'opcache (bytecode PHP) NI l'object cache (APCu/Redis) : un vidage de
+	 * cache de PAGES n'a aucun rapport avec le CODE compilé. Resetter l'opcache ici
+	 * recompilait 23k+ fichiers sous forte concurrence → fenêtres d'incohérence de classes
+	 * → fatales opcache croisées entre plugins. Pour un « tout vider » délibéré (opcache +
+	 * object cache), c'est le HARD FLUSH manuel (endpoint Faaaster / déploiement), pas ici.
+	 *
+	 * Hooks automatiques : purge REPORTÉE en fin de requête, une seule fois. Elle suit
+	 * donc la DERNIÈRE modification de la requête (une mise à jour automatique enchaîne
+	 * plusieurs vidages) et ne tombe pas pendant le mode maintenance d'une mise à jour, qui
+	 * ferait servir la page 503 aux visiteurs à la place des pages en cache. Pas de
+	 * regroupement entre requêtes : il jetait la purge qui suivait un second changement
+	 * (pages périmées jusqu'à expiration) ; la tempête RUCSS est traitée par des purges
+	 * scopées dans faaaster-wp-rocket.php. $force = true : action manuelle, immédiate.
+	 * Les purges SCOPÉES (purge_url/purge_post) ne passent pas par ici → immédiates.
+	 *
+	 * @param bool $force Purge immédiate (action manuelle). Défaut false (hooks auto).
 	 */
-	public function purge_all() {
-		// OP cache
-    	opcache_reset();
+	public function purge_all( $force = false ) {
+		// Déjà en shutdown : un rappel ajouté maintenant à priorité 0 ne serait plus exécuté.
+		if ( $force || did_action( 'shutdown' ) ) {
+			$this->purge_pages( (bool) $force );
+			return;
+		}
+		if ( $this->purge_all_scheduled ) {
+			return;
+		}
+		$this->purge_all_scheduled = true;
+		$this->log( '- purge_all (pages) programmée en fin de requête' );
+		add_action( 'shutdown', function () {
+			$this->purge_pages( false );
+		}, 0 );
+	}
 
-		// New Method fcgi
-        $_url_purge      = "http://localhost/purge-all";
-        $this->do_remote_get( $_url_purge );
+	/**
+	 * Purge de fin de requête déjà programmée.
+	 *
+	 * @var bool
+	 */
+	private $purge_all_scheduled = false;
 
+	/**
+	 * Vide le cache de PAGES FastCGI (et Pagespeed) maintenant.
+	 *
+	 * @param bool $force Action manuelle (pour le log).
+	 */
+	private function purge_pages( $force ) {
+		// FastCGI SEULEMENT (pages). PAS de opcache_reset(), PAS de wp_cache_flush() : ce
+		// sont des caches de CODE, vidés uniquement par le hard flush manuel délibéré.
+		$this->do_remote_get( "http://localhost/purge-all" );
+		touch( '/tmp/pagespeed/cache.flush' );
 
-		// Pagespeed
-		// $_url_purge_pagespeed = "http://localhost/pagespeed_admin/cache?purge=*";
-        // $this->do_remote_get(  $_url_purge_pagespeed );
-
-		// better to use touch than admin
-		touch('/tmp/pagespeed/cache.flush');
-
-		// Cache objet WordPress
-		wp_cache_flush();
-
-
-		// Old Method
-		// $this->unlink_recursive( RT_WP_NGINX_HELPER_CACHE_PATH, false );
-
-		// Logs
-		$this->log( '* * * * *' );
-		$this->log( '* Purged Everything!' );
-		// $this ->log($_url_purge);
-		$this->log( '* * * * *' );
+		$this->log( '* Purged FastCGI page cache' . ( $force ? ' (forcé)' : '' ) );
 
 		/**
 		 * Fire an action after the FastCGI cache has been purged.

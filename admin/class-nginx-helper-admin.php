@@ -764,7 +764,10 @@ class Nginx_Helper_Admin {
 
 		switch ( $action ) {
 			case 'purge':
-				$nginx_purger->purge_all();
+				// Action MANUELLE (bouton barre admin, nonce vérifié) → forcée (immédiate,
+				// pas de coalescing). Pages seulement — pas d'opcache (ça reste le hard
+				// flush manuel Faaaster / le déploiement).
+				$nginx_purger->purge_all( true );
 				break;
 			case 'purge_current_page':
 				$nginx_purger->purge_url( $current_url );
