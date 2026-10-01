@@ -35,7 +35,8 @@ if ( ! class_exists( 'Nginx_Helper_WP_CLI_Command' ) ) {
 
 			global $nginx_purger;
 
-			$nginx_purger->purge_all();
+			// Commande manuelle : purge immédiate, avant d'afficher le succès.
+			$nginx_purger->purge_all( true );
 
 			$message = __( 'Purged Everything!', 'nginx-helper' );
 			WP_CLI::success( $message );
