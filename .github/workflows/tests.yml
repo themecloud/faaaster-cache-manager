@@ -1,0 +1,33 @@
+# Tests PHP autonomes du fork Faaaster (sans WordPress).
+# Remplace l'e2e Playwright hérité de rtCamp, qui exigeait leurs secrets et leur
+# image et ne démarrait plus (actions/upload-artifact@v1 retiré par GitHub).
+
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  php:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Les deux familles d'images wp-builder (wp-php74, wp-php82).
+        php: ['7.4', '8.2']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Purge tests
+        run: php tests/php/purge-all.php
